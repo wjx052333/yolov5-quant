@@ -48,7 +48,11 @@ import test
 from utils_quant.check_params import check_and_set_params
 from utils.dataloaders import create_dataloader
 from utils.general import check_img_size, colorstr
-from utils.general import intersect_dicts
+from utils.general import (LOGGER, TQDM_BAR_FORMAT, check_amp, check_dataset, check_file, check_git_info,
+                           check_git_status, check_img_size, check_requirements, check_suffix, check_yaml, colorstr,
+                           get_latest_run, increment_path, init_seeds, intersect_dicts, labels_to_class_weights,
+                           labels_to_image_weights, methods, one_cycle, print_args, print_mutation, strip_optimizer,
+                           yaml_save)
 from models.yolo import Model
 
 
@@ -110,8 +114,7 @@ def prepare_model(calibrator, hyp, opt, device):
     # Model
     # with open(opt.data) as f:
     #     data_dict = yaml.load(f, Loader=yaml.SafeLoader)  # data dict
-    with torch_distributed_zero_first(LOCAL_RANK):
-        data_dict = data_dict or check_dataset(data)  # check if None
+    data_dict = check_dataset(opt.data)  # check if None
     nc = 1 if opt.single_cls else int(data_dict['nc'])    # number of classes
 
     # # Dynamic module replacement using monkey patching.

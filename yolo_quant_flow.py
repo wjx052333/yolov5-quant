@@ -169,7 +169,8 @@ def prepare_model(calibrator, hyp, opt, device):
 
 def evaluate_accuracy(model, opt, testloader):
     opt.task = 'val'
-    results, _, _ = val.run(opt.data,
+    data_dict = check_dataset(opt.data)
+    results, _, _ = val.run(data_dict,
          weights=opt.weights,
          batch_size=opt.batch_size_test,
          model=model,

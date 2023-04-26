@@ -44,7 +44,7 @@ except ImportError:
     )
 
 from train import train
-import test
+import val
 from utils_quant.check_params import check_and_set_params
 from utils.dataloaders import create_dataloader
 from utils.general import check_img_size, colorstr
@@ -147,7 +147,7 @@ def prepare_model(calibrator, hyp, opt, device):
     # Train dataloader
     trainloader, dataset = create_dataloader(train_path, imgsz, opt.batch_size, gs, opt,
                                             hyp=hyp, augment=True, cache=opt.cache_images, rect=opt.rect, rank=-1,
-                                            world_size=opt.world_size, workers=opt.workers,
+                                            workers=opt.workers,
                                             image_weights=opt.image_weights, quad=opt.quad, prefix=colorstr('train: '))
     mlc = np.concatenate(dataset.labels, 0)[:, 0].max()  # max label class
     assert mlc < nc, 'Label class %g exceeds nc=%g in %s. Possible class labels are 0-%g' % (mlc, nc, opt.data, nc - 1)
@@ -155,13 +155,13 @@ def prepare_model(calibrator, hyp, opt, device):
     # Test dataloader
     testloader = create_dataloader(test_path, imgsz_test, opt.batch_size*2, gs, opt,  # testloader
                                    hyp=hyp, cache=opt.cache_images and not opt.notest, rect=True, rank=-1,
-                                   world_size=opt.world_size, workers=opt.workers,
+                                   workers=opt.workers,
                                    pad=0.5, prefix=colorstr('val: '))[0]
 
     # Calib dataloader
     calibloader = create_dataloader(train_path, imgsz, opt.calib_batch_size, gs, opt,
                                             hyp=hyp, augment=True, cache=opt.cache_images, rect=opt.rect, rank=-1,
-                                            world_size=opt.world_size, workers=opt.workers,
+                                            workers=opt.workers,
                                             image_weights=opt.image_weights, quad=opt.quad, prefix=colorstr('train: '))[0]
 
     return model, trainloader, testloader, calibloader, dataset
@@ -169,7 +169,7 @@ def prepare_model(calibrator, hyp, opt, device):
 
 def evaluate_accuracy(model, opt, testloader):
     opt.task = 'val'
-    results, _, _ = test.test(opt.data,
+    results, _, _ = val.run(opt.data,
          weights=opt.weights,
          batch_size=opt.batch_size_test,
          model=model,

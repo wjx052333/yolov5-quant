@@ -176,8 +176,7 @@ def evaluate_accuracy(model, opt, testloader):
          dataloader=testloader,
          conf_thres=opt.conf_thres,
          iou_thres=opt.iou_thres,
-         save_json=opt.save_json,
-         opt=opt)
+         save_json=opt.save_json)
 
     map50 = list(results)[3]
     map = list(results)[2]

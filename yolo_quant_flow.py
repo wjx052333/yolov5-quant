@@ -46,9 +46,9 @@ except ImportError:
 from train import train
 import test
 from utils_quant.check_params import check_and_set_params
-from utils.datasets import create_dataloader
+from utils.dataloaders import create_dataloader
 from utils.general import check_img_size, colorstr
-from utils.torch_utils import intersect_dicts
+from utils.general import intersect_dicts
 from models.yolo import Model
 
 
@@ -108,8 +108,10 @@ def prepare_model(calibrator, hyp, opt, device):
     quant_nn.QuantLinear.set_default_quant_desc_input(quant_desc_input)
 
     # Model
-    with open(opt.data) as f:
-        data_dict = yaml.load(f, Loader=yaml.SafeLoader)  # data dict
+    # with open(opt.data) as f:
+    #     data_dict = yaml.load(f, Loader=yaml.SafeLoader)  # data dict
+    with torch_distributed_zero_first(LOCAL_RANK):
+        data_dict = data_dict or check_dataset(data)  # check if None
     nc = 1 if opt.single_cls else int(data_dict['nc'])    # number of classes
 
     # # Dynamic module replacement using monkey patching.

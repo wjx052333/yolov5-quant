@@ -284,7 +284,7 @@ def export_onnx(model, onnx_filename, batch_onnx, dynamic_shape):
     try:
         import onnx
         torch.onnx.export(model, dummy_input, onnx_filename, verbose=False, opset_version=13, input_names=['images'],
-                          output_names= ['output_0', 'output_1', 'output_2'],
+                          output_names = ['output0'],
                           dynamic_axes={'images': {0: 'batch', 2: 'height', 3: 'width'}} if dynamic_shape else None,
                           do_constant_folding=True)
 
@@ -454,11 +454,12 @@ def build_sensitivity_profile(model, opt, testloader):
 def skip_sensitive_layers(model, opt, testloader):
     print('Skip the sensitive layers.')
     # Sensitivity layers for yolov5s
-    skipped_layers = ['model.1.conv',          # the first conv
-                      'model.2.cv1.conv',      # the second conv
-                      'model.24.m.2',          # detect layer
-                      'model.24.m.1',          # detect layer
-                      ]
+    # skipped_layers = ['model.1.conv',          # the first conv
+    #                   'model.2.cv1.conv',      # the second conv
+    #                   'model.24.m.2',          # detect layer
+    #                   'model.24.m.1',          # detect layer
+    #                   ]
+    skipped_layers = ['model.7.conv']
 
     for name, module in model.named_modules():
         if isinstance(module, quant_nn.TensorQuantizer):
